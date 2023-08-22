@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
-from notes.models import Note
 from django.urls import reverse
+
+from notes.models import Note
 
 User = get_user_model()
 
@@ -31,10 +32,8 @@ class TestNoteContent(TestCase):
         for name, status in users:
             with self.subTest(name=name):
                 url = reverse('notes:list')
-                # Выполняем запрос от имени параметризованного клиента:
                 response = name.get(url)
                 object_list = response.context['object_list']
-                # Проверяем истинность утверждения "заметка есть в списке":
                 self.assertIs((self.note in object_list), status)
 
     def test_pages_contains_form(self):

@@ -1,14 +1,12 @@
-from http import HTTPStatus
-from pytest_django.asserts import assertRedirects
 from django.urls import reverse
+from pytest_django.asserts import assertRedirects
 import pytest
+from http import HTTPStatus
 
 
-# Указываем в фикстурах встроенный клиент.
 @pytest.mark.django_db
 @pytest.mark.parametrize(
-    'name, args',  # Имя параметра функции.
-    # Значения, которые будут передаваться в name.
+    'name, args',
     (
         ('news:home', None),
         ('users:signup', None),
@@ -18,7 +16,6 @@ import pytest
     ),
 )
 def test_home_availability_for_anonymous_user(client, name, args):
-    # Адрес страницы получаем через reverse():
     url = reverse(name, args=args)
     response = client.get(url)
     assert response.status_code == HTTPStatus.OK
@@ -26,8 +23,6 @@ def test_home_availability_for_anonymous_user(client, name, args):
 
 @pytest.mark.parametrize(
     'parametrized_client, expected_status',
-    # Предварительно оборачиваем имена фикстур
-    # в вызов функции pytest.lazy_fixture().
     (
         (pytest.lazy_fixture('author_client'), HTTPStatus.OK),
         (pytest.lazy_fixture('reader_client'), HTTPStatus.NOT_FOUND),
@@ -55,7 +50,6 @@ def test_availability_for_comment_edit_and_delete(
 )
 def test_redirect_for_anonymous_client(client, name, args):
     login_url = reverse('users:login')
-    # Теперь не надо писать никаких if и можно обойтись одним выражением.
     url = reverse(name, args=args)
     expected_url = f'{login_url}?next={url}'
     response = client.get(url)

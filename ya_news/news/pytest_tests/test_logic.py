@@ -6,6 +6,8 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from http import HTTPStatus
 
+from news.models import Comment
+
 User = get_user_model()
 
 
@@ -13,7 +15,7 @@ User = get_user_model()
 @pytest.mark.parametrize(
     'name, args',
     (
-        ('news:detail',  pytest.lazy_fixture('id_news')),
+        ('news:detail', pytest.lazy_fixture('id_news')),
     ),
 )
 def test_anonymous_user_cant_create_comment(client, form_data, name, args):
@@ -26,7 +28,7 @@ def test_anonymous_user_cant_create_comment(client, form_data, name, args):
 @pytest.mark.parametrize(
     'name, args',
     (
-        ('news:detail',  pytest.lazy_fixture('id_news')),
+        ('news:detail', pytest.lazy_fixture('id_news')),
     ),
 )
 def test_user_can_create_comment(
