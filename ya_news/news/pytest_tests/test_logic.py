@@ -9,13 +9,18 @@ from http import HTTPStatus
 from news.models import Comment
 
 User = get_user_model()
+URL = {
+    'detail': 'news:detail',
+    'delete': 'news:delete',
+    'edit': 'news:edit',
+}
 
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'name, args',
     (
-        ('news:detail', pytest.lazy_fixture('id_news')),
+        (URL['detail'], pytest.lazy_fixture('id_news')),
     ),
 )
 def test_anonymous_user_cant_create_comment(client, form_data, name, args):
@@ -28,7 +33,7 @@ def test_anonymous_user_cant_create_comment(client, form_data, name, args):
 @pytest.mark.parametrize(
     'name, args',
     (
-        ('news:detail', pytest.lazy_fixture('id_news')),
+        (URL['detail'], pytest.lazy_fixture('id_news')),
     ),
 )
 def test_user_can_create_comment(
@@ -41,17 +46,19 @@ def test_user_can_create_comment(
     comments_count = Comment.objects.count()
     assert comments_count == 1
     comment = get_object_or_404(Comment)
-    assert comment.news == news
-    assert comment.text == 'Текст комментария'
+    assert comment.news == news    # проверки каких полей не хватает?
+    assert comment.text == form_data['text']
     assert comment.author == author
 
 
 def test_author_can_delete_comment(
         author_client, id_news, id_comment
 ):
-    url = reverse('news:delete', args=(id_comment))
+    comments_count = Comment.objects.count()
+    assert comments_count == 1
+    url = reverse(URL['delete'], args=(id_comment))
     response = author_client.delete(url)
-    news_url = reverse('news:detail', args=(id_news))
+    news_url = reverse(URL['detail'], args=(id_news))
     url_to_comments = news_url + '#comments'
     assertRedirects(response, url_to_comments)
     comments_count = Comment.objects.count()
@@ -61,7 +68,9 @@ def test_author_can_delete_comment(
 def test_user_cant_delete_comment_of_another_user(
         id_comment, reader_client
 ):
-    url = reverse('news:delete', args=(id_comment))
+    comments_count = Comment.objects.count()
+    assert comments_count == 1
+    url = reverse(URL['delete'], args=(id_comment))
     response = reader_client.delete(url)
     assert response.status_code == HTTPStatus.NOT_FOUND
     comments_count = Comment.objects.count()
@@ -72,21 +81,22 @@ def test_author_can_edit_comment(
         author_client, id_comment, id_news, comment
 ):
     form_data = {'text': 'Обновлённый комментарий'}
-    url = reverse('news:edit', args=id_comment)
+    url = reverse(URL['edit'], args=id_comment)
     response = author_client.post(url, data=form_data)
-    news_url = reverse('news:detail', args=(id_news))
+    news_url = reverse(URL['detail'], args=(id_news))
     url_to_comments = news_url + '#comments'
     assertRedirects(response, url_to_comments)
     comment.refresh_from_db()
-    assert comment.text == 'Обновлённый комментарий'
+    assert comment.text == form_data['text']
 
 
 def test_user_cant_edit_comment_of_another_user(
         reader_client, id_comment, comment
 ):
     form_data = {'text': 'Обновлённый комментарий'}
-    url = reverse('news:edit', args=id_comment)
+    comment_test = comment.text
+    url = reverse(URL['edit'], args=id_comment)
     response = reader_client.post(url, data=form_data)
     assert response.status_code == HTTPStatus.NOT_FOUND
     comment.refresh_from_db()
-    assert comment.text == 'Текст комментария'
+    assert comment.text == comment_test

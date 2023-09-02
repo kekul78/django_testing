@@ -5,6 +5,11 @@ from django.urls import reverse
 from notes.models import Note
 
 User = get_user_model()
+URL = {
+    'add': 'notes:add',
+    'list': 'notes:list',
+    'edit': 'notes:edit',
+}
 
 
 class TestNoteContent(TestCase):
@@ -31,15 +36,15 @@ class TestNoteContent(TestCase):
         )
         for name, status in users:
             with self.subTest(name=name):
-                url = reverse('notes:list')
+                url = reverse(URL['list'])
                 response = name.get(url)
                 object_list = response.context['object_list']
                 self.assertIs((self.note in object_list), status)
 
     def test_pages_contains_form(self):
         urls = (
-            ('notes:add', None),
-            ('notes:edit', (self.note.slug,)),
+            (URL['add'], None),
+            (URL['edit'], (self.note.slug,)),
         )
         for name, args in urls:
             with self.subTest(name=name):

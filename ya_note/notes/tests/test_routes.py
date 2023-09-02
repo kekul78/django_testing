@@ -6,6 +6,18 @@ from django.contrib.auth import get_user_model
 from notes.models import Note
 
 User = get_user_model()
+URL = {
+    'home': 'notes:home',
+    'login': 'users:login',
+    'logout': 'users:logout',
+    'signup': 'users:signup',
+    'list': 'notes:list',
+    'add': 'notes:add',
+    'success': 'notes:success',
+    'detail': 'notes:detail',
+    'edit': 'notes:edit',
+    'delite': 'notes:delete',
+}
 
 
 class TestRoutes(TestCase):
@@ -22,10 +34,10 @@ class TestRoutes(TestCase):
 
     def test_pages_availability_for_anonymous_user(self):
         urls = (
-            ('notes:home', None),
-            ('users:login', None),
-            ('users:logout', None),
-            ('users:signup', None),
+            (URL['home'], None),
+            (URL['login'], None),
+            (URL['logout'], None),
+            (URL['signup'], None),
         )
         for name, args in urls:
             with self.subTest(name=name):
@@ -35,9 +47,9 @@ class TestRoutes(TestCase):
 
     def test_pages_availability_for_auth_user(self):
         urls = (
-            ('notes:list', None),
-            ('notes:add', None),
-            ('notes:success', None),
+            (URL['list'], None),
+            (URL['add'], None),
+            (URL['success'], None),
         )
         for name, args in urls:
             self.client.force_login(self.author)
@@ -48,9 +60,9 @@ class TestRoutes(TestCase):
 
     def test_pages_availability_for_different_users(self):
         urls = (
-            ('notes:detail', (self.note.slug,)),
-            ('notes:edit', (self.note.slug,)),
-            ('notes:delete', (self.note.slug,)),
+            (URL['detail'], (self.note.slug,)),
+            (URL['edit'], (self.note.slug,)),
+            (URL['delite'], (self.note.slug,)),
         )
         users = (
             (self.author, HTTPStatus.OK),
@@ -66,16 +78,16 @@ class TestRoutes(TestCase):
 
     def test_redirects(self):
         urls = (
-            ('notes:detail', (self.note.slug,)),
-            ('notes:edit', (self.note.slug,)),
-            ('notes:delete', (self.note.slug,)),
-            ('notes:add', None),
-            ('notes:success', None),
-            ('notes:list', None),
+            (URL['detail'], (self.note.slug,)),
+            (URL['edit'], (self.note.slug,)),
+            (URL['delite'], (self.note.slug,)),
+            (URL['add'], None),
+            (URL['success'], None),
+            (URL['list'], None),
         )
         for name, args in urls:
             with self.subTest(name=name):
-                login_url = reverse('users:login')
+                login_url = reverse(URL['login'])
                 url = reverse(name, args=args)
                 expected_url = f'{login_url}?next={url}'
                 response = self.client.get(url)

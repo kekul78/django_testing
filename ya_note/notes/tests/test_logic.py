@@ -9,6 +9,11 @@ from notes.models import Note
 from notes.forms import WARNING
 
 User = get_user_model()
+URL = {
+    'add': 'notes:add',
+    'edit': 'notes:edit',
+    'delete': 'notes:delete'
+}
 
 
 class TestNoteCreation(TestCase):
@@ -18,7 +23,7 @@ class TestNoteCreation(TestCase):
         cls.author = User.objects.create(username='Мимо Крокодил')
         cls.author_client = Client()
         cls.author_client.force_login(cls.author)
-        cls.url = reverse('notes:add')
+        cls.url = reverse(URL['add'])
         cls.form_data = {
             'title': 'Новый заголовок',
             'text': 'Новый текст',
@@ -39,6 +44,7 @@ class TestNoteCreation(TestCase):
         response = self.client.post(self.url, data=self.form_data)
         login_url = reverse('users:login')
         expected_url = f'{login_url}?next={self.url}'
+        self.assertEqual(Note.objects.count(), 0)
         self.assertRedirects(response, expected_url)
         self.assertEqual(Note.objects.count(), 0)
 
@@ -49,7 +55,7 @@ class TestNoteSlug(TestCase):
         cls.author = User.objects.create(username='Мимо Крокодил')
         cls.author_client = Client()
         cls.author_client.force_login(cls.author)
-        cls.url = reverse('notes:add')
+        cls.url = reverse(URL['add'])
         cls.form_data = {
             'title': 'Новый заголовок',
             'text': 'Новый текст',
@@ -96,8 +102,8 @@ class TestNoteEditDelite(TestCase):
             slug='note-slug',
             author=cls.author,
         )
-        cls.url = [reverse('notes:edit', args=(cls.note.slug,)),
-                   reverse('notes:delete', args=(cls.note.slug,))]
+        cls.url = [reverse(URL['edit'], args=(cls.note.slug,)),
+                   reverse(URL['delete'], args=(cls.note.slug,))]
         cls.form_data = {
             'title': 'Новый заголовок',
             'text': 'Новый текст',

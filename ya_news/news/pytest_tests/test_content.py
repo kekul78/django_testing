@@ -3,6 +3,9 @@ from django.urls import reverse
 from django.conf import settings
 
 HOME_URL = reverse('news:home')
+URL = {
+    'detail': 'news:detail'
+}
 
 
 @pytest.mark.django_db
@@ -28,7 +31,7 @@ def test_news_order(client, news_count_on_homepage):
 @pytest.mark.parametrize(
     'name, args',
     (
-        ('news:detail', pytest.lazy_fixture('id_news')),
+        (URL['detail'], pytest.lazy_fixture('id_news')),
     ),
 )
 def test_comments_order(client, name, args, many_comments):
@@ -51,6 +54,6 @@ def test_comments_order(client, name, args, many_comments):
     )
 )
 def test_pages_contains_form(parametrized_client, args, form_in_list):
-    url = reverse('news:detail', args=args)
+    url = reverse(URL['detail'], args=args)
     response = parametrized_client.get(url)
     assert ('form' in response.context) is form_in_list

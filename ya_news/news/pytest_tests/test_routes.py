@@ -3,16 +3,26 @@ from pytest_django.asserts import assertRedirects
 import pytest
 from http import HTTPStatus
 
+URL = {
+    'home': 'news:home',
+    'login': 'users:login',
+    'logout': 'users:logout',
+    'signup': 'users:signup',
+    'detail': 'news:detail',
+    'edit': 'news:edit',
+    'delite': 'news:delete',
+}
+
 
 @pytest.mark.django_db
 @pytest.mark.parametrize(
     'name, args',
     (
-        ('news:home', None),
-        ('users:signup', None),
-        ('users:logout', None),
-        ('users:login', None),
-        ('news:detail', pytest.lazy_fixture('id_news')),
+        (URL['home'], None),
+        (URL['signup'], None),
+        (URL['logout'], None),
+        (URL['login'], None),
+        (URL['detail'], pytest.lazy_fixture('id_news')),
     ),
 )
 def test_home_availability_for_anonymous_user(client, name, args):
@@ -30,7 +40,7 @@ def test_home_availability_for_anonymous_user(client, name, args):
 )
 @pytest.mark.parametrize(
     'name',
-    ('news:edit', 'news:delete'),
+    (URL['edit'], URL['delite']),
 )
 def test_availability_for_comment_edit_and_delete(
     parametrized_client, expected_status, name, id_comment
@@ -44,12 +54,12 @@ def test_availability_for_comment_edit_and_delete(
 @pytest.mark.parametrize(
     'name, args',
     (
-        ('news:edit', pytest.lazy_fixture('id_comment')),
-        ('news:delete', pytest.lazy_fixture('id_comment'))
+        (URL['edit'], pytest.lazy_fixture('id_comment')),
+        (URL['delite'], pytest.lazy_fixture('id_comment'))
     ),
 )
 def test_redirect_for_anonymous_client(client, name, args):
-    login_url = reverse('users:login')
+    login_url = reverse(URL['login'])
     url = reverse(name, args=args)
     expected_url = f'{login_url}?next={url}'
     response = client.get(url)
