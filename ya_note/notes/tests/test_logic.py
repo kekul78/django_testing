@@ -12,7 +12,8 @@ User = get_user_model()
 URL = {
     'add': 'notes:add',
     'edit': 'notes:edit',
-    'delete': 'notes:delete'
+    'delete': 'notes:delete',
+    'success': 'notes:success',
 }
 
 
@@ -32,7 +33,7 @@ class TestNoteCreation(TestCase):
 
     def test_user_can_create_note(self):
         response = self.author_client.post(self.url, data=self.form_data)
-        self.assertRedirects(response, reverse('notes:success'))
+        self.assertRedirects(response, reverse(URL['success']))
         self.assertEqual(Note.objects.count(), 1)
         new_note = Note.objects.get()
         self.assertEqual(new_note.title, self.form_data['title'])
