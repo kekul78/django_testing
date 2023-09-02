@@ -14,6 +14,7 @@ URL = {
     'edit': 'notes:edit',
     'delete': 'notes:delete',
     'success': 'notes:success',
+    'login': 'users:login',
 }
 
 
@@ -43,7 +44,7 @@ class TestNoteCreation(TestCase):
 
     def test_anonymous_user_cant_create_note(self):
         response = self.client.post(self.url, data=self.form_data)
-        login_url = reverse('users:login')
+        login_url = reverse(URL['login'])
         expected_url = f'{login_url}?next={self.url}'
         self.assertEqual(Note.objects.count(), 0)
         self.assertRedirects(response, expected_url)
@@ -66,7 +67,7 @@ class TestNoteSlug(TestCase):
     def test_empty_slug(self):
         self.form_data.pop('slug')
         response = self.author_client.post(self.url, data=self.form_data)
-        self.assertRedirects(response, reverse('notes:success'))
+        self.assertRedirects(response, reverse(URL['success']))
         self.assertEqual(Note.objects.count(), 1)
         new_note = Note.objects.get()
         expected_slug = slugify(self.form_data['title'])
@@ -113,7 +114,7 @@ class TestNoteEditDelite(TestCase):
 
     def test_author_can_edit_note(self):
         response = self.author_client.post(self.url[0], self.form_data)
-        self.assertRedirects(response, reverse('notes:success'))
+        self.assertRedirects(response, reverse(URL['success']))
         self.note.refresh_from_db()
         self.assertEqual(self.note.title, self.form_data['title'])
         self.assertEqual(self.note.text, self.form_data['text'])
@@ -129,7 +130,7 @@ class TestNoteEditDelite(TestCase):
 
     def test_author_can_delete_note(self):
         response = self.author_client.post(self.url[1])
-        self.assertRedirects(response, reverse('notes:success'))
+        self.assertRedirects(response, reverse(URL['success']))
         self.assertEqual(Note.objects.count(), 0)
 
     def test_other_user_cant_delete_note(self):
