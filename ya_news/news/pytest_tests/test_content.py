@@ -1,6 +1,7 @@
 import pytest
 from django.urls import reverse
 from django.conf import settings
+from news.forms import CommentForm
 
 HOME_URL = reverse('news:home')
 URL = {
@@ -38,9 +39,10 @@ def test_comments_order(client, name, args, many_comments):
     detail_url = reverse(name, args=args)
     response = client.get(detail_url)
     news = response.context['news']
-    # Получаем все комментарии к новости.
     all_comments = news.comment_set.all()
-    assert all_comments[0].created < all_comments[1].created
+    sorted_comments = all_comments.order_by('created',)
+    for i in range(0, len(all_comments) - 2):
+        assert sorted_comments[i].created < all_comments[i + 1].created
 
 
 @pytest.mark.django_db
@@ -56,4 +58,5 @@ def test_comments_order(client, name, args, many_comments):
 def test_pages_contains_form(parametrized_client, args, form_in_list):
     url = reverse(URL['detail'], args=args)
     response = parametrized_client.get(url)
-    assert ('form' in response.context) is form_in_list
+    form = response.context.get('form')
+    assert (isinstance(form, CommentForm)) is form_in_list

@@ -3,6 +3,7 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from notes.models import Note
+from notes.forms import NoteForm
 
 User = get_user_model()
 URL = {
@@ -50,4 +51,6 @@ class TestNoteContent(TestCase):
             with self.subTest(name=name):
                 url = reverse(name, args=args)
                 response = self.author_client.get(url)
-                self.assertIn('form', response.context)
+                form = response.context.get('form')
+                self.assertIsNotNone(form)
+                self.assertIsInstance(form, NoteForm)

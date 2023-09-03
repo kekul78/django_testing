@@ -1,5 +1,4 @@
 from pytest_django.asserts import assertRedirects
-from news.models import Comment
 import pytest
 from django.urls import reverse
 from django.contrib.auth import get_user_model
@@ -78,7 +77,7 @@ def test_user_cant_delete_comment_of_another_user(
 
 
 def test_author_can_edit_comment(
-        author_client, id_comment, id_news, comment
+        author_client, id_comment, id_news, comment, author
 ):
     form_data = {'text': 'Обновлённый комментарий'}
     url = reverse(URL['edit'], args=id_comment)
@@ -88,6 +87,7 @@ def test_author_can_edit_comment(
     assertRedirects(response, url_to_comments)
     comment.refresh_from_db()
     assert comment.text == form_data['text']
+    assert comment.author == author
 
 
 def test_user_cant_edit_comment_of_another_user(
