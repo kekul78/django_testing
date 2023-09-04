@@ -1,12 +1,14 @@
-import pytest
 from django.urls import reverse
 from django.conf import settings
+import pytest
+
 from news.forms import CommentForm
 
-HOME_URL = reverse('news:home')
 URL = {
-    'detail': 'news:detail'
+    'detail': 'news:detail',
+    'home': 'news:home',
 }
+HOME_URL = reverse(URL['home'])
 
 
 @pytest.mark.django_db

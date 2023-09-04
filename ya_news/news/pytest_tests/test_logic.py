@@ -1,9 +1,10 @@
+from http import HTTPStatus
+
 from pytest_django.asserts import assertRedirects
-import pytest
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from http import HTTPStatus
+import pytest
 
 from news.models import Comment
 
