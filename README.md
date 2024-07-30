@@ -1,6 +1,7 @@
 # Django testing  
 
 Тесты написанные для 2 проектов ya_news и ya_note с использованием pytest и unittest
+
 Cтруктура репозитория:
 ```
 Dev
